@@ -1,0 +1,9 @@
+.home-page{ padding:28px; max-width:1100px; margin:0 auto; }
+.hero{ background:linear-gradient(90deg,#e8f7ff,#ffffff); padding:28px; border-radius:12px; box-shadow:0 6px 20px rgba(20,30,60,0.04); text-align:right; }
+.hero h1{ margin:0 0 8px; font-size:28px; color:#08304a; }
+.lead{ color:#124; margin-bottom:0; }
+.about{ margin-top:20px; text-align:right; }
+.about ul{ margin:8px 0 0 0; padding-right:18px; }
+.quick-actions{ margin-top:20px; }
+.actions-row{ display:flex; gap:12px; justify-content:flex-end; }
+.action-card{ display:inline-block; padding:12px 16px; background:#fff; border-radius:10px; border:1px solid #e6eef8; text-decoration:none; color:#0b2b4a; }
