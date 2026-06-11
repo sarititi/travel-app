@@ -1,6 +1,8 @@
 import { useState, useContext } from 'react';
 import { UserContext } from '../../context/userContext';
 import { createPlace } from '../../API/placeAPI';
+import '../../styles/places.css';
+
 
 const DAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 const DAY_LABELS = {

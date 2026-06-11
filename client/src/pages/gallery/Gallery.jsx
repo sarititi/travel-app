@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { getPlaces } from '../API/placeAPI';
-import '../styles/gallery.css';
+import { getPlaces } from '../../API/placeAPI';
+import GalleryGrid from '../../components/gallery/GalleryGrid';
+import '../../styles/gallery.css';
 
 const BASE_URL = 'http://localhost:3000';
 
@@ -25,7 +25,7 @@ export default function Gallery() {
               const items = await res.json();
               items.forEach((it) => allMedia.push({ ...it, placeId: p.place_id }));
             } catch (e) {
-              // ignore single place failures
+              // התעלמות משגיאות במקום בודד
             }
           })
         );
@@ -51,32 +51,8 @@ export default function Gallery() {
           <div className="places-spinner" />
           <span>טוען תמונות...</span>
         </div>
-      ) : media.length === 0 ? (
-        <div className="gallery-empty">
-          <div className="empty-icon">📷</div>
-          <p>עדיין אין תמונות בגלריה. היו הראשונים להוסיף!</p>
-        </div>
       ) : (
-        <div className="gallery-grid">
-          {media.map((m) => {
-            const mid = m.media_id || m.id;
-            return (
-              <Link
-                to={`/gallery/${m.placeId}/${mid}`}
-                className="gallery-item"
-                key={`${m.placeId}-${mid}`}>
-                <img src={m.media_url || m.url} alt={m.caption || m.uploaded_by || 'תמונה מהגלריה'} />
-                {(m.uploaded_by || m.caption) && (
-                  <div className="gallery-item__info">
-                    <div className="gallery-item__uploader">
-                      {m.uploaded_by ? `צולם על ידי ${m.uploaded_by}` : ''}
-                    </div>
-                  </div>
-                )}
-              </Link>
-            );
-          })}
-        </div>
+        <GalleryGrid media={media} />
       )}
     </div>
   );

@@ -11,12 +11,14 @@ import Register from './pages/auth/Register';
 import Home from './pages/Home';
 import PlaceList from './pages/places/PlaceList';
 import PlaceDetail from './pages/places/PlaceDetail';
-import Gallery from './pages/Gallery';
-import GalleryPost from './pages/GalleryPost';
-import Profile from './pages/Profile';
-import ProfileEdit from './pages/ProfileEdit';
-import Itinerary from './pages/Itinerary';
+import Gallery from './pages/gallery/Gallery';
+import GalleryPost from './pages/gallery/GalleryPost';
 
+// תוקן: הנתיבים החדשים לתיקיית הפרופיל
+import Profile from './pages/profile/Profile';
+import ProfileEdit from './pages/profile/ProfileEdit';
+
+import Itinerary from './pages/Itinerary';
 import ErrorPage from './pages/ErrorPage';
 
 function App() {
@@ -46,20 +48,15 @@ function App() {
           </Route>
         </Route>
 
-        {/* Fallback */}
+        {/* Fallback routes */}
         <Route path="/" element={<Navigate to="/home" replace />} />
-        <Route
-          path="*"
-          element={<ErrorPage code={404} />}
-        />
-        <Route
-          path="*"
-          element={<ErrorPage code={500} />}
-        />
-        <Route
-          path="*"
-          element={<ErrorPage code={403} />}
-        />
+        
+        {/* תוקן: ניתובים ספציפיים לשגיאות */}
+        <Route path="/403" element={<ErrorPage code={403} />} />
+        <Route path="/500" element={<ErrorPage code={500} />} />
+        
+        {/* נתיב תופס-כל (Catch-all) תמיד חייב להיות אחרון! */}
+        <Route path="*" element={<ErrorPage code={404} />} />
 
       </Routes>
     </UserProvider>
