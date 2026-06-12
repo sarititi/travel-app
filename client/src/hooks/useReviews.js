@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getReviews, createReview, deleteReview, voteReviewHelpful } from '../API/reviewAPI';
+import { getReviews, createReview, updateReview, deleteReview, voteReviewHelpful } from '../API/reviewAPI';
 
 export function useReviews(placeId, user) {
   const [reviews, setReviews] = useState([]);
@@ -24,6 +24,13 @@ export function useReviews(placeId, user) {
   const addReview = async (rating, comment) => {
     const newReview = await createReview(placeId, { rating, comment }, user.token);
     setReviews((prev) => [{ ...newReview, user_vote: null }, ...prev]);
+  };
+
+  const editReview = async (reviewId, rating, comment) => {
+    await updateReview(placeId, reviewId, { rating, comment }, user.token);
+    setReviews((prev) => prev.map((r) =>
+      r.review_id === reviewId ? { ...r, rating, comment } : r
+    ));
   };
 
   const removeReview = async (reviewId) => {
@@ -58,5 +65,5 @@ export function useReviews(placeId, user) {
     }
   };
 
-  return { reviews, loading, error, addReview, removeReview, voteReview };
+  return { reviews, loading, error, addReview, editReview, removeReview, voteReview };
 }

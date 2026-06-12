@@ -67,6 +67,28 @@ export const getReviewsByPlaceId = async (placeId, currentUserId = null) => {
 };
 
 /**
+ * קבלת כל התגובות שכתב משתמש מסוים — כולל שם המקום
+ */
+export const getReviewsByUserId = async (userId) => {
+    const [rows] = await pool.query(
+        `SELECT
+            r.review_id,
+            r.user_id,
+            r.place_id,
+            r.rating,
+            r.comment,
+            r.created_at,
+            p.name AS place_name
+         FROM reviews r
+         LEFT JOIN places p ON r.place_id = p.place_id
+         WHERE r.user_id = ?
+         ORDER BY r.created_at DESC`,
+        [userId]
+    );
+    return rows;
+};
+
+/**
  * קבלת תגובה ספציפית לפי ID
  */
 export const getReviewById = async (reviewId) => {

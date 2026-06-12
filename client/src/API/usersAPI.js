@@ -32,6 +32,55 @@ export const loginUser = async (email, password) => {
   return { user: { id, username, email: e, role }, token };
 };
 
+/**
+ * שליפת פרטי משתמש לפי ID (כולל username, email, role)
+ */
+export const getUserById = async (userId, token) => {
+  const res = await fetch(`${BASE_URL}/user/${userId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+};
+
+/**
+ * עדכון שם משתמש ואימייל
+ */
+export const updateUserProfile = async (userId, data, token) => {
+  const res = await fetch(`${BASE_URL}/user/${userId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+};
+
+/**
+ * שליפת הטיולים שיצר המשתמש
+ */
+export const getUserPlaces = async (userId, token) => {
+  const res = await fetch(`${BASE_URL}/user/${userId}/places`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+};
+
+/**
+ * שליפת התגובות שכתב המשתמש
+ */
+export const getUserReviews = async (userId, token) => {
+  const res = await fetch(`${BASE_URL}/user/${userId}/reviews`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+};
+
 export const registerUser = async (userData) => {
   try {
     const res = await fetch(`${BASE_URL}/auth/register`, {

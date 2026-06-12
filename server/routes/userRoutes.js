@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllUsers, getUser, putUser, deleteUser, postUsers } from '../controller/UserController.js';
+import { getAllUsers, getUser, putUser, deleteUser, postUsers, getUserPlaces, getUserReviewsList } from '../controller/UserController.js';
 import { authenticateToken, requireRole } from '../middleWare/authMiddleware.js';
 
 const router = express.Router();
@@ -7,6 +7,8 @@ const router = express.Router();
 router.get('/', authenticateToken, requireRole('admin'), getAllUsers);
 router.post('/', authenticateToken, requireRole('admin'), postUsers);
 router.get('/:id', authenticateToken, getUser);
+router.get('/:id/places', authenticateToken, getUserPlaces);
+router.get('/:id/reviews', authenticateToken, getUserReviewsList);
 router.put('/:id', authenticateToken, putUser);
 router.delete('/:id', authenticateToken, requireRole('admin'), deleteUser);
 

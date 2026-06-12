@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { formatDate } from '../../utils/dateUtils';
+import ReviewForm from './ReviewForm';
 
 const STARS = [1, 2, 3, 4, 5];
 
-export default function ReviewItem({ review, currentUser, onDelete, onVote }) {
+export default function ReviewItem({ review, currentUser, onDelete, onEdit, onVote }) {
   const {
     review_id,
     user_id,
@@ -15,8 +17,29 @@ export default function ReviewItem({ review, currentUser, onDelete, onVote }) {
     user_vote,
   } = review;
 
-  const isOwner = currentUser && currentUser.user_id === user_id;
+  const [isEditing, setIsEditing] = useState(false);
+
+  const currentUserId = currentUser ? (currentUser.id ?? currentUser.user_id) : null;
+  const isOwner = currentUserId != null && currentUserId === user_id;
   const createdDate = formatDate(created_at);
+
+  if (isEditing) {
+    return (
+      <article className="review-item" dir="rtl">
+        <ReviewForm
+          label="עריכת תגובה"
+          submitLabel="שמור שינויים"
+          initialRating={rating}
+          initialComment={comment || ''}
+          onCancel={() => setIsEditing(false)}
+          onSubmit={async (newRating, newComment) => {
+            await onEdit(review_id, newRating, newComment);
+            setIsEditing(false);
+          }}
+        />
+      </article>
+    );
+  }
 
   return (
     <article className="review-item" dir="rtl">
@@ -40,9 +63,9 @@ export default function ReviewItem({ review, currentUser, onDelete, onVote }) {
         <div className="review-helpful-btns">
           <button
             className={`helpful-btn helpful-btn--up ${user_vote === 'up' ? 'helpful-btn--active' : ''}`}
-            onClick={() => currentUser && onVote(review_id, 'up')}
+            onClick={() => currentUser && !isOwner && onVote(review_id, 'up')}
             disabled={!currentUser || isOwner}
-            title={currentUser ? 'הועיל לי' : 'יש להתחבר'}
+            title={!currentUser ? 'יש להתחבר' : isOwner ? 'לא ניתן להצביע על התגובה שלך' : 'הועיל לי'}
             aria-pressed={user_vote === 'up'}
           >
             👍 {helpful_count > 0 && <span>{helpful_count}</span>}
@@ -50,9 +73,9 @@ export default function ReviewItem({ review, currentUser, onDelete, onVote }) {
 
           <button
             className={`helpful-btn helpful-btn--down ${user_vote === 'down' ? 'helpful-btn--active' : ''}`}
-            onClick={() => currentUser && onVote(review_id, 'down')}
+            onClick={() => currentUser && !isOwner && onVote(review_id, 'down')}
             disabled={!currentUser || isOwner}
-            title={currentUser ? 'לא הועיל לי' : 'יש להתחבר'}
+            title={!currentUser ? 'יש להתחבר' : isOwner ? 'לא ניתן להצביע על התגובה שלך' : 'לא הועיל לי'}
             aria-pressed={user_vote === 'down'}
           >
             👎 {not_helpful_count > 0 && <span>{not_helpful_count}</span>}
@@ -60,13 +83,22 @@ export default function ReviewItem({ review, currentUser, onDelete, onVote }) {
         </div>
 
         {isOwner && (
-          <button
-            className="review-delete-btn"
-            onClick={() => onDelete(review_id)}
-            aria-label="מחק תגובה"
-          >
-            מחק
-          </button>
+          <div className="review-owner-actions">
+            <button
+              className="review-edit-btn"
+              onClick={() => setIsEditing(true)}
+              aria-label="ערוך תגובה"
+            >
+              ערוך
+            </button>
+            <button
+              className="review-delete-btn"
+              onClick={() => onDelete(review_id)}
+              aria-label="מחק תגובה"
+            >
+              מחק
+            </button>
+          </div>
         )}
       </div>
     </article>

@@ -81,6 +81,11 @@ export const UNAUTHORIZED_REVIEW_MODIFICATION = {
     status: 403
 };
 
+export const CANNOT_VOTE_OWN_REVIEW = {
+    message: 'You cannot vote on your own review',
+    status: 403
+};
+
 export const RATING_REQUIRED = {
     message: 'Rating is required',
     status: 400
@@ -140,7 +145,7 @@ export const NO_FILE_UPLOADED = {
 };
 
 export const NAME_CATEGORY_REQUIRED = {
-    message: 'name is required and categories must be a non-empty array of strings',
+    message: 'name is required and categories must be an array of strings',
     status: 400
 };
 

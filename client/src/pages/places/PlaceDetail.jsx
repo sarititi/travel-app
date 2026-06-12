@@ -51,8 +51,11 @@ export default function PlaceDetail() {
         {/* חלק 2: כפתורי פעולה אינטראקטיביים */}
         <div className="place-actions-bar">
           <AddToItineraryButton placeId={id} />
-          <button className="btn-primary" onClick={() => setIsReviewOpen(true)}>
-            כתיבת חוות דעת
+          <button className="btn-reviews" onClick={() => setIsReviewOpen(true)}>
+            💬 תגובות וחוות דעת
+            {place.review_count > 0 && (
+              <span className="btn-reviews__count">{place.review_count}</span>
+            )}
           </button>
         </div>
 
@@ -62,15 +65,10 @@ export default function PlaceDetail() {
 
       {/* מודל הביקורות */}
       {isReviewOpen && (
-        <ReviewModal 
-          placeId={id} 
-          onClose={() => setIsReviewOpen(false)} 
-          onReviewAdded={(newReview) => {
-            setPlace(prev => ({
-              ...prev,
-              reviews: [newReview, ...(prev.reviews || [])]
-            }));
-          }}
+        <ReviewModal
+          placeId={id}
+          placeName={place.name}
+          onClose={() => setIsReviewOpen(false)}
         />
       )}
     </div>

@@ -8,24 +8,21 @@ import '../../styles/places.css';
 const LIMIT = 12;
 
 export default function PlaceList() {
-  const [places, setPlaces] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
+  const [places,        setPlaces]        = useState([]);
+  const [total,         setTotal]         = useState(0);
+  const [totalPages,    setTotalPages]    = useState(1);
+  const [page,          setPage]          = useState(1);
+  const [search,        setSearch]        = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [loading,       setLoading]       = useState(true);
+  const [error,         setError]         = useState('');
+  const [showAddModal,  setShowAddModal]  = useState(false);
   const { user } = useContext(UserContext);
-  const [showAddModal, setShowAddModal] = useState(false);
 
+  // debounce search
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search);
-      setPage(1);
-    }, 350);
-
-    return () => clearTimeout(timer);
+    const t = setTimeout(() => { setDebouncedSearch(search); setPage(1); }, 350);
+    return () => clearTimeout(t);
   }, [search]);
 
   const fetchData = useCallback(async () => {
@@ -33,8 +30,8 @@ export default function PlaceList() {
     setError('');
     try {
       const data = await getPlaces({ page, limit: LIMIT, search: debouncedSearch });
-      setPlaces(data.places ?? []);
-      setTotal(data.total ?? 0);
+      setPlaces(data.places    ?? []);
+      setTotal(data.total      ?? 0);
       setTotalPages(data.totalPages ?? 1);
     } catch {
       setError('שגיאה בטעינת המקומות. אנא נסו שוב.');
@@ -43,26 +40,19 @@ export default function PlaceList() {
     }
   }, [page, debouncedSearch]);
 
-  const handlePlaceAdded = () => {
-    // רענון הרשימה
-    window.location.reload();
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [page]);
+  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }, [page]);
 
   return (
     <div className="places-page">
+      {/* Header */}
       <header className="places-header">
         <h1 className="places-header-title">
           <span className="emoji">✈️</span>
           יעדים מומלצים
-          {total > 0 && !loading && <span className="places-count">({total})</span>}
+          {total > 0 && !loading && (
+            <span className="places-count">({total})</span>
+          )}
         </h1>
 
         <div className="places-search-bar">
@@ -85,32 +75,25 @@ export default function PlaceList() {
           )}
         </div>
       </header>
+
+      {/* Toolbar */}
       {user && (
-        <div style={{ textAlign: 'right', marginBottom: '20px' }}>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="btn-show-more"
-            style={{
-              background: 'var(--accent)',
-              color: 'white',
-              border: 'none',
-              fontSize: '16px',
-              padding: '12px 24px'
-            }}
-          >
+        <div className="places-toolbar">
+          <button className="btn-primary" onClick={() => setShowAddModal(true)}>
             ➕ הוסף טיול חדש
           </button>
         </div>
       )}
 
-      {/* מודאל הוספה */}
+      {/* Add Modal */}
       {showAddModal && (
         <AddPlaceModal
           onClose={() => setShowAddModal(false)}
-          onPlaceAdded={handlePlaceAdded}
+          onPlaceAdded={() => { setShowAddModal(false); fetchData(); }}
         />
       )}
 
+      {/* Content */}
       {loading ? (
         <div className="places-loading">
           <div className="places-spinner" />
@@ -131,22 +114,21 @@ export default function PlaceList() {
         </div>
       )}
 
+      {/* Pagination */}
       {!loading && !error && totalPages > 1 && (
         <div className="places-pagination">
           <button
             className="pagination-btn"
             disabled={page <= 1}
-            onClick={() => setPage((currentPage) => currentPage - 1)}
+            onClick={() => setPage(p => p - 1)}
           >
             הקודם
           </button>
-          <span className="pagination-info">
-            {page} / {totalPages}
-          </span>
+          <span className="pagination-info">{page} / {totalPages}</span>
           <button
             className="pagination-btn"
             disabled={page >= totalPages}
-            onClick={() => setPage((currentPage) => currentPage + 1)}
+            onClick={() => setPage(p => p + 1)}
           >
             הבא
           </button>

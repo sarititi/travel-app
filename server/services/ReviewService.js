@@ -1,12 +1,13 @@
 import {
     createReview,
     getReviewsByPlaceId,
+    getReviewsByUserId,
     getReviewById,
     updateReview,
     deleteReview,
     voteReviewHelpful,
 } from '../models/ReviewModel.js';
-import { REVIEW_NOT_FOUND, INVALID_RATING, DELETE_FAILED } from '../const/errorConst.js';
+import { REVIEW_NOT_FOUND, INVALID_RATING, DELETE_FAILED, CANNOT_VOTE_OWN_REVIEW } from '../const/errorConst.js';
 
 export const addReview = async (userId, placeId, rating, comment) => {
     if (rating < 1 || rating > 5) {
@@ -19,6 +20,10 @@ export const addReview = async (userId, placeId, rating, comment) => {
 
 export const getPlaceReviews = async (placeId, currentUserId = null) => {
     return await getReviewsByPlaceId(placeId, currentUserId);
+};
+
+export const getUserReviews = async (userId) => {
+    return await getReviewsByUserId(userId);
 };
 
 export const editReview = async (reviewId, rating, comment) => {
@@ -68,6 +73,12 @@ export const helpfulVote = async (reviewId, userId, vote) => {
     if (!review) {
         const error = new Error(REVIEW_NOT_FOUND.message);
         error.status = REVIEW_NOT_FOUND.status;
+        throw error;
+    }
+
+    if (review.user_id === userId) {
+        const error = new Error(CANNOT_VOTE_OWN_REVIEW.message);
+        error.status = CANNOT_VOTE_OWN_REVIEW.status;
         throw error;
     }
 

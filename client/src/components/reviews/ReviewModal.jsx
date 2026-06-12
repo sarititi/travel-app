@@ -3,13 +3,14 @@ import { UserContext } from '../../context/userContext';
 import { useReviews } from '../../hooks/useReviews';
 import ReviewItem from './ReviewItem';
 import ReviewForm from './ReviewForm';
+import '../../styles/places.css';
 
 export default function ReviewModal({ placeId, placeName, onClose }) {
   const { user } = useContext(UserContext);
   const backdropRef = useRef(null);
   
   // שימוש ב-Hook שניצרנו כדי לייבא את כל הלוגיקה בשורה אחת!
-  const { reviews, loading, error, addReview, removeReview, voteReview } = useReviews(placeId, user);
+  const { reviews, loading, error, addReview, editReview, removeReview, voteReview } = useReviews(placeId, user);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -69,6 +70,7 @@ export default function ReviewModal({ placeId, placeName, onClose }) {
                   review={review}
                   currentUser={user}
                   onDelete={removeReview}
+                  onEdit={editReview}
                   onVote={voteReview}
                 />
               ))

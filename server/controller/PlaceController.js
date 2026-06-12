@@ -24,8 +24,8 @@ export const postPlace = async (req, res, next) => {
 
 export const fetchPlaces = async (req, res, next) => {
     try {
-        const { page, limit, search, category, open_on } = req.query;
-        const result = await getPlaces({ page, limit, search, category, open_on });
+        const { page, limit, search, category, open_on, created_by } = req.query;
+        const result = await getPlaces({ page, limit, search, category, open_on, created_by });
         res.status(200).json(result);
     } catch (err) {
         next(err);

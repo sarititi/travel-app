@@ -2,10 +2,17 @@ import { useState } from 'react';
 
 const STARS = [1, 2, 3, 4, 5];
 
-export default function ReviewForm({ onSubmit }) {
-  const [rating, setRating] = useState(0);
+export default function ReviewForm({
+  onSubmit,
+  onCancel,
+  initialRating = 0,
+  initialComment = '',
+  label = 'הוסיפו תגובה',
+  submitLabel = 'פרסום',
+}) {
+  const [rating, setRating] = useState(initialRating);
   const [hoverRating, setHoverRating] = useState(0);
-  const [comment, setComment] = useState('');
+  const [comment, setComment] = useState(initialComment);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
@@ -16,11 +23,15 @@ export default function ReviewForm({ onSubmit }) {
     }
     setSubmitError('');
     setSubmitting(true);
-    
+
     try {
       await onSubmit(rating, comment.trim());
-      setRating(0);
-      setComment('');
+      if (onCancel) {
+        // מצב עריכה — הסגירה מתבצעת ע"י ההורה
+      } else {
+        setRating(0);
+        setComment('');
+      }
     } catch (err) {
       setSubmitError('שגיאה בשמירת התגובה. אנא נסו שוב.');
     } finally {
@@ -30,8 +41,8 @@ export default function ReviewForm({ onSubmit }) {
 
   return (
     <div className="review-form">
-      <p className="review-form__label">הוסיפו תגובה</p>
-      
+      <p className="review-form__label">{label}</p>
+
       <div className="review-form__stars" onMouseLeave={() => setHoverRating(0)}>
         {STARS.map((s) => (
           <button
@@ -60,12 +71,22 @@ export default function ReviewForm({ onSubmit }) {
       <div className="review-form__footer">
         {submitError && <span className="review-form__error">{submitError}</span>}
         <span className="review-form__chars">{comment.length} / 1000</span>
+        {onCancel && (
+          <button
+            type="button"
+            className="review-form__cancel"
+            onClick={onCancel}
+            disabled={submitting}
+          >
+            ביטול
+          </button>
+        )}
         <button
           className="review-form__submit"
           onClick={handleSubmit}
           disabled={submitting}
         >
-          {submitting ? 'שומר...' : 'פרסום'}
+          {submitting ? 'שומר...' : submitLabel}
         </button>
       </div>
     </div>

@@ -5,7 +5,7 @@ const MAX_LIMIT     = 50;
 const DEFAULT_LIMIT = 50;
 
 export const validateCategories = (categories) => {
-    if (!Array.isArray(categories) || categories.length === 0) return false;
+    if (!Array.isArray(categories)) return false;
     return categories.every(c => typeof c === 'string' && c.trim().length > 0);
 };
 
@@ -65,7 +65,7 @@ export const removePlace = async (placeId) => {
 };
 
 
-export const getPlaces = async ({ page = 1, limit = DEFAULT_LIMIT, search = '', category = '', open_on = '' } = {}) => {
+export const getPlaces = async ({ page = 1, limit = DEFAULT_LIMIT, search = '', category = '', open_on = '', created_by = '' } = {}) => {
 
     // --- pagination ---
     const safePage  = Math.max(1, parseInt(page)  || 1);
@@ -85,6 +85,12 @@ export const getPlaces = async ({ page = 1, limit = DEFAULT_LIMIT, search = '', 
     if (category?.trim()) {
         conditions.push('JSON_CONTAINS(p.categories, ?, \'$\')');
         params.push(JSON.stringify(category.trim()));  // חייב להיות "\"bar\"" ולא "bar"
+    }
+
+    // סינון לפי יוצר המקום — שימוש בעמוד הפרופיל
+    if (created_by) {
+        conditions.push('p.created_by = ?');
+        params.push(created_by);
     }
 
     // --- שליפה מהמודל ---

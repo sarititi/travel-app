@@ -29,7 +29,7 @@ export const createPlace = async (userId, name, description, categories, latitud
     };
 };
 
-// שליפת place יחיד לפי ID — כולל created_by
+// שליפת place יחיד לפי ID — כולל created_by ותמונה ראשית
 export const getPlaceById = async (placeId) => {
     const [rows] = await pool.query(
         `SELECT
@@ -44,7 +44,12 @@ export const getPlaceById = async (placeId) => {
             p.is_approved,
             p.created_at,
             u.username AS created_by_username,
-            u.user_id  AS created_by_id
+            u.user_id  AS created_by_id,
+            (SELECT m.media_url FROM media m
+              WHERE m.place_id = p.place_id AND m.media_type = 'image'
+              ORDER BY m.uploaded_at DESC LIMIT 1) AS image_url,
+            (SELECT ROUND(AVG(r.rating), 1) FROM reviews r WHERE r.place_id = p.place_id) AS avg_rating,
+            (SELECT COUNT(*) FROM reviews r WHERE r.place_id = p.place_id) AS review_count
          FROM places p
          LEFT JOIN users u ON p.created_by = u.user_id
          WHERE p.place_id = ?`,
@@ -112,7 +117,12 @@ export const fetchPlaces = async (conditions = [], params = [], limit, offset) =
             p.is_approved,
             p.created_at,
             u.username AS created_by_username,
-            u.user_id  AS created_by_id
+            u.user_id  AS created_by_id,
+            (SELECT m.media_url FROM media m
+              WHERE m.place_id = p.place_id AND m.media_type = 'image'
+              ORDER BY m.uploaded_at DESC LIMIT 1) AS image_url,
+            (SELECT ROUND(AVG(r.rating), 1) FROM reviews r WHERE r.place_id = p.place_id) AS avg_rating,
+            (SELECT COUNT(*) FROM reviews r WHERE r.place_id = p.place_id) AS review_count
          FROM places p
          LEFT JOIN users u ON p.created_by = u.user_id
          ${WHERE}

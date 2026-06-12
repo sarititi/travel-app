@@ -1,4 +1,6 @@
 import * as UserService from '../services/UserService.js';
+import { getPlaces } from '../services/PlaceService.js';
+import { getUserReviews } from '../services/ReviewService.js';
 import { ACCESS_DENIED } from '../const/errorConst.js';
 
 export const getAllUsers = async (req, res, next) => {
@@ -20,6 +22,36 @@ export const getUser = async (req, res, next) => {
         }
         const user = await UserService.getUserById(numericId);
         res.status(200).json(user);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const getUserPlaces = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const numericId = Number(id);
+        // allow admin or owner
+        if (req.user.role !== 'admin' && req.user.id !== numericId) {
+            return res.status(ACCESS_DENIED.status).json({ error: ACCESS_DENIED.message });
+        }
+        const result = await getPlaces({ created_by: numericId, limit: 50 });
+        res.status(200).json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const getUserReviewsList = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const numericId = Number(id);
+        // allow admin or owner
+        if (req.user.role !== 'admin' && req.user.id !== numericId) {
+            return res.status(ACCESS_DENIED.status).json({ error: ACCESS_DENIED.message });
+        }
+        const reviews = await getUserReviews(numericId);
+        res.status(200).json(reviews);
     } catch (err) {
         next(err);
     }

@@ -1,8 +1,10 @@
 import { useState, useContext } from 'react';
 import { UserContext } from '../../context/userContext';
-import { createPlace } from '../../API/placeAPI';
+import { createPlace, updatePlace } from '../../API/placeAPI';
+import { uploadMedia } from '../../API/mediaAPI';
 import '../../styles/places.css';
 
+const MAX_IMAGE_SIZE = 50 * 1024 * 1024; // 50MB — תואם למגבלת השרת
 
 const DAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 const DAY_LABELS = {
@@ -10,35 +12,71 @@ const DAY_LABELS = {
   thu: 'חמישי', fri: 'שישי', sat: 'שבת'
 };
 
-export default function AddPlaceModal({ onClose, onPlaceAdded }) {
+/**
+ * AddPlaceModal – משמש גם להוספה וגם לעריכה.
+ *
+ * Props:
+ *   onClose()          – סגירת המודל
+ *   onPlaceAdded()     – callback לאחר יצירה
+ *   onPlaceUpdated()   – callback לאחר עדכון
+ *   place              – אם קיים → מצב עריכה
+ *   inline             – אם true → מרנדר ללא backdrop (לשימוש ב-EditPlacePage)
+ */
+export default function AddPlaceModal({ onClose, onPlaceAdded, onPlaceUpdated, place, inline = false }) {
   const { user } = useContext(UserContext);
+  const isEdit = Boolean(place);
+
   const [form, setForm] = useState({
-    name: '',
-    description: '',
-    categories: '',
-    opening_hours: {}
+    name:          isEdit ? (place.name        || '') : '',
+    description:   isEdit ? (place.description || '') : '',
+    categories:    isEdit && place.categories ? place.categories.join(', ') : '',
+    opening_hours: isEdit ? (place.opening_hours || {}) : {},
   });
+
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error,   setError]   = useState('');
+
+  const [imageFile,    setImageFile]    = useState(null);
+  const [imagePreview, setImagePreview] = useState(isEdit ? (place.image_url || '') : '');
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setError('ניתן להעלות קבצי תמונה בלבד');
+      return;
+    }
+    if (file.size > MAX_IMAGE_SIZE) {
+      setError('גודל התמונה חייב להיות עד 50MB');
+      return;
+    }
+
+    setError('');
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview('');
   };
 
   const handleHoursChange = (day, value) => {
-    setForm({
-      ...form,
-      opening_hours: {
-        ...form.opening_hours,
-        [day]: value
-      }
-    });
+    setForm(prev => ({
+      ...prev,
+      opening_hours: { ...prev.opening_hours, [day]: value }
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name.trim()) {
-      setError('שם המקום חובה');
+      setError('שם המקום הוא שדה חובה');
       return;
     }
 
@@ -46,80 +84,174 @@ export default function AddPlaceModal({ onClose, onPlaceAdded }) {
     setError('');
 
     const placeData = {
-      name: form.name.trim(),
-      description: form.description.trim(),
-      categories: form.categories
-        .split(',')
-        .map(c => c.trim())
-        .filter(Boolean),
-      opening_hours: form.opening_hours
+      name:          form.name.trim(),
+      description:   form.description.trim(),
+      categories:    form.categories.split(',').map(c => c.trim()).filter(Boolean),
+      opening_hours: form.opening_hours,
     };
 
     try {
-      await createPlace(placeData, user.token);
-      onPlaceAdded();
-      onClose();
+      const placeId = isEdit ? place.place_id : (await createPlace(placeData, user.token)).place_id;
+
+      if (isEdit) {
+        await updatePlace(place.place_id, placeData, user.token);
+      }
+
+      if (imageFile) {
+        try {
+          await uploadMedia(placeId, imageFile, user.token);
+        } catch (uploadErr) {
+          setError('הנתונים נשמרו, אך העלאת התמונה נכשלה: ' + (uploadErr.message || ''));
+          setLoading(false);
+          return;
+        }
+      }
+
+      if (isEdit) onPlaceUpdated?.();
+      else onPlaceAdded?.();
+
+      if (!inline) onClose();
     } catch (err) {
-      setError(err.message || 'שגיאה ביצירת המקום');
+      setError(err.message || 'שגיאה בשמירת הנתונים');
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="review-modal-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="review-modal" style={{ maxWidth: 620 }}>
-        <div className="review-modal__header">
-          <h2 className="review-modal__title">הוספת טיול חדש</h2>
-          <button className="review-modal__close" onClick={onClose}>✕</button>
+  const FormContent = (
+    <>
+      <div className="modal-header">
+        <h2 className="modal-title">
+          {isEdit ? '✏️ עריכת מקום' : '➕ הוספת מקום חדש'}
+        </h2>
+        {!inline && (
+          <button className="modal-close-btn" onClick={onClose} aria-label="סגור">✕</button>
+        )}
+      </div>
+
+      <form onSubmit={handleSubmit} className="modal-body">
+        {error && <div className="modal-error-message">{error}</div>}
+
+        <div className="form-group">
+          <label className="form-label">שם המקום *</label>
+          <input
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            className="form-input"
+            required
+            placeholder="לדוגמה: עין גדי"
+            autoFocus
+          />
         </div>
 
-        <form onSubmit={handleSubmit} className="review-modal__body">
-          {error && <div style={{ color: '#c2410c', marginBottom: 12 }}>{error}</div>}
+        <div className="form-group">
+          <label className="form-label">תיאור</label>
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            rows={3}
+            className="form-input form-textarea"
+            placeholder="ספר קצת על המקום..."
+          />
+        </div>
 
-          <div style={{ marginBottom: 16 }}>
-            <label>שם המקום *</label>
-            <input name="name" value={form.name} onChange={handleChange} required />
-          </div>
-
-          <div style={{ marginBottom: 16 }}>
-            <label>תיאור</label>
-            <textarea name="description" value={form.description} onChange={handleChange} rows={3} />
-          </div>
-
-          <div style={{ marginBottom: 16 }}>
-            <label>קטגוריות (מופרדות בפסיק)</label>
-            <input 
-              name="categories" 
-              value={form.categories} 
-              onChange={handleChange} 
-              placeholder="משפחתי, טבע, חינם" 
+        <div className="form-group">
+          <label className="form-label">תמונה ראשית</label>
+          <div className="image-upload-box">
+            {imagePreview ? (
+              <div className="image-preview-wrap">
+                <img src={imagePreview} alt="תצוגה מקדימה של התמונה" className="image-preview" />
+                <button
+                  type="button"
+                  className="image-remove-btn"
+                  onClick={handleRemoveImage}
+                  aria-label="הסר תמונה"
+                  title="הסר תמונה"
+                >
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <label htmlFor="place-image-input" className="image-upload-label">
+                <span className="image-upload-icon">📷</span>
+                <span>לחצו להעלאת תמונה</span>
+                <small>JPG, PNG, GIF או WEBP עד 50MB</small>
+              </label>
+            )}
+            <input
+              id="place-image-input"
+              type="file"
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              onChange={handleImageChange}
+              style={{ display: 'none' }}
             />
           </div>
+        </div>
 
-          <div style={{ marginBottom: 16 }}>
-            <label>שעות פתיחה</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 8 }}>
-              {DAYS.map(day => (
-                <div key={day}>
-                  <small>{DAY_LABELS[day]}</small>
-                  <input 
-                    placeholder="09:00-17:00 או closed"
-                    value={form.opening_hours[day] || ''} 
-                    onChange={(e) => handleHoursChange(day, e.target.value)}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
+        <div className="form-group">
+          <label className="form-label">
+            קטגוריות{' '}
+            <span style={{ fontWeight: 400, color: 'var(--places-text-muted)' }}>
+              (מופרדות בפסיק)
+            </span>
+          </label>
+          <input
+            name="categories"
+            value={form.categories}
+            onChange={handleChange}
+            className="form-input"
+            placeholder="משפחתי, טבע, חינם"
+          />
+        </div>
 
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 20 }}>
-            <button type="button" className="btn-modal-cancel" onClick={onClose}>ביטול</button>
-            <button type="submit" className="btn-modal-submit" disabled={loading}>
-              {loading ? 'שומר...' : 'צור מקום חדש'}
-            </button>
+        <div className="form-group">
+          <label className="form-label">שעות פתיחה</label>
+          <div className="hours-grid">
+            {DAYS.map(day => (
+              <div key={day} className="hour-row">
+                <small className="day-name">{DAY_LABELS[day]}</small>
+                <input
+                  value={form.opening_hours[day] || ''}
+                  onChange={(e) => handleHoursChange(day, e.target.value)}
+                  className="form-input hour-input"
+                  placeholder="09:00–17:00"
+                />
+              </div>
+            ))}
           </div>
-        </form>
+        </div>
+
+        <div className="modal-footer-actions">
+          <button type="submit" className="btn-primary" disabled={loading}>
+            {loading ? '⏳ שומר...' : isEdit ? 'שמור שינויים' : 'צור מקום'}
+          </button>
+          <button type="button" className="btn-secondary" onClick={onClose}>
+            ביטול
+          </button>
+        </div>
+      </form>
+    </>
+  );
+
+  // מצב inline – ללא backdrop (משמש ב-EditPlacePage)
+  if (inline) {
+    return (
+      <div className="modal-window" style={{ maxWidth: '100%', maxHeight: 'none', borderRadius: 0 }}>
+        {FormContent}
+      </div>
+    );
+  }
+
+  // מצב רגיל – עם backdrop
+  return (
+    <div
+      className="modal-backdrop"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div className="modal-window animate-fade-in" role="dialog" aria-modal="true">
+        {FormContent}
       </div>
     </div>
   );
