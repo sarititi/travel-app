@@ -12,6 +12,8 @@ export default function AddToItineraryButton({ placeId }) {
     try {
       await addToItinerary(placeId, user.token);
       setStatus('added');
+      // notify other parts of the app (Itinerary / Favorites) to reload
+      try { window.dispatchEvent(new CustomEvent('itinerary:changed')); } catch (e) {}
     } catch (err) {
       if (err.message.includes('409')) {
         setStatus('duplicate');

@@ -1,0 +1,14 @@
+.favorites-page{padding:28px;max-width:1100px;margin:0 auto;text-align:right;font-family:inherit}
+.favorites-header{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:18px}
+.favorites-header h1{font-size:28px;margin:0;color:#0b4a67}
+.favorites-header .muted{color:#6b7280;font-size:14px}
+.fav-loading,.fav-empty{padding:40px;background:#fff7ed;border:1px dashed #ffd8a8;border-radius:10px;color:#92400e}
+.fav-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.fav-card{display:flex;gap:12px;align-items:flex-start;padding:14px;background:linear-gradient(180deg,#ffffff,#f7fdff);border-radius:12px;box-shadow:0 6px 18px rgba(6,95,70,0.06);border:1px solid #e6f6f2}
+.fav-thumb{width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,#ffe8e8,#e8fafe);display:flex;align-items:center;justify-content:center;font-size:28px}
+.fav-body{flex:1}
+.fav-title{margin:0 0 6px 0;font-size:16px;color:#073642}
+.fav-desc{margin:0 0 10px 0;color:#4b5563;font-size:13px}
+.fav-actions{display:flex;gap:8px}
+.btn{padding:8px 12px;background:#06b6d4;color:white;border-radius:8px;text-decoration:none;border:none;cursor:pointer}
+.btn.danger{background:#ef4444}

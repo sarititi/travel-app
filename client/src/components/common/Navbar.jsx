@@ -41,6 +41,10 @@ export default function Navbar() {
         {(user && (user.role === 'admin' || user.username === 'admin1')) && (
           <Link to="/admin/users" className="nav-link">ניהול משתמשים</Link>
         )}
+        {user && (
+
+<Link to="/itinerary" className="nav-link">המועדפים שלי</Link>
+        )}
       </div>
 
       <div className="nav-left">
