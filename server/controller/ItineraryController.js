@@ -2,7 +2,8 @@ import {
     getItinerary,
     addPlace,
     removePlace,
-    reorderPlaces
+    reorderPlaces,
+    setFavoriteFolder
 } from '../services/ItineraryService.js';
 import { PLACE_ID_REQUIRED, ENTRIES_REQUIRED, ENTRY_FIELDS_REQUIRED } from '../const/errorConst.js';
 
@@ -36,6 +37,18 @@ export const deleteItineraryPlace = async (req, res, next) => {
 
         await removePlace(req.user.id, Number(favoriteId));
         res.status(200).json({ success: true, message: 'Place removed from itinerary' });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const patchItineraryFolder = async (req, res, next) => {
+    try {
+        const { favoriteId } = req.params;
+        const { folder_id } = req.body;
+
+        await setFavoriteFolder(req.user.id, Number(favoriteId), folder_id ?? null);
+        res.status(200).json({ success: true, message: 'Favorite folder updated successfully' });
     } catch (err) {
         next(err);
     }

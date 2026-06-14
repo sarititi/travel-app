@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:3000';
+import { getData, create, update, deleteItem } from './generalAPI';
 
 /**
  * שליפת רשימת מקומות עם סינון
@@ -11,10 +11,7 @@ export const getPlaces = async ({ page = 1, limit = 20, search = '', category = 
   if (category) query.set('category', category);
   if (open_on)  query.set('open_on', open_on);
 
-  const res = await fetch(`${BASE_URL}/places?${query.toString()}`);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  
-  const data = await res.json();
+  const data = await getData(`/places?${query.toString()}`);
 
   // המרה אוטומטית של created_by_id ל-created_by לכל המקומות ברשימה
   if (data && data.places) {
@@ -31,10 +28,7 @@ export const getPlaces = async ({ page = 1, limit = 20, search = '', category = 
  * שליפת place בודד לפי ID
  */
 export const getPlaceById = async (id) => {
-  const res = await fetch(`${BASE_URL}/places/${encodeURIComponent(id)}`);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  
-  const data = await res.json();
+  const data = await getData(`/places/${encodeURIComponent(id)}`);
 
   // המרה אוטומטית של created_by_id ל-created_by למקום בודד
   if (data) {
@@ -47,45 +41,17 @@ export const getPlaceById = async (id) => {
 /**
  * הוספת place חדש (מחייב token)
  */
-export const createPlace = async (placeData, token) => {
-  const res = await fetch(`${BASE_URL}/places`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(placeData),
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-};
+export const createPlace = (placeData, token) =>
+  create('/places', placeData, token);
 
 /**
  * עדכון place (מחייב token)
  */
-export const updatePlace = async (id, placeData, token) => {
-  const res = await fetch(`${BASE_URL}/places/${encodeURIComponent(id)}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(placeData),
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-};
+export const updatePlace = (id, placeData, token) =>
+  update(`/places/${encodeURIComponent(id)}`, placeData, token);
 
 /**
  * מחיקת place (מחייב token)
  */
-export const deletePlace = async (id, token) => {
-  const res = await fetch(`${BASE_URL}/places/${encodeURIComponent(id)}`, {
-    method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-};
+export const deletePlace = (id, token) =>
+  deleteItem(`/places/${encodeURIComponent(id)}`, token);

@@ -162,3 +162,22 @@ export const voteReviewHelpful = async (reviewId, userId, vote) => {
         user_vote:         vote,
     };
 };
+
+/**
+ * מציאת ביקורת עם דירוג (rating IS NOT NULL) עבור משתמש ומקום
+ * אם provided excludeReviewId — מחזירים רק אם יש ביקורת שונה מה- exclude
+ */
+export const getStarredReviewByUserAndPlace = async (userId, placeId, excludeReviewId = null) => {
+    let sql = `SELECT review_id, user_id, place_id, rating, comment, created_at
+               FROM reviews
+               WHERE user_id = ? AND place_id = ? AND rating IS NOT NULL`;
+    const params = [userId, placeId];
+    if (excludeReviewId) {
+        sql += ` AND review_id != ?`;
+        params.push(excludeReviewId);
+    }
+    sql += ` LIMIT 1`;
+
+    const [rows] = await pool.query(sql, params);
+    return rows[0] || null;
+};

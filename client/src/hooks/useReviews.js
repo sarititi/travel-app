@@ -11,7 +11,8 @@ export function useReviews(placeId, user) {
       setLoading(true);
       try {
         const data = await getReviews(placeId);
-        setReviews((data ?? []).map((r) => ({ ...r, user_vote: r.user_vote ?? null })));
+        const mapped = (data ?? []).map((r) => ({ ...r, user_vote: r.user_vote ?? null }));
+        setReviews(mapped);
       } catch {
         setError('לא ניתן לטעון תגובות. אנא נסו שוב.');
       } finally {
@@ -21,13 +22,23 @@ export function useReviews(placeId, user) {
     if (placeId) fetchReviews();
   }, [placeId]);
 
+  // id of the user's starred review for this place (rating != null)
+  const starredReviewId = (() => {
+    if (!user) return null;
+    const myId = user.id ?? user.user_id;
+    const me = reviews.find(r => r.user_id === myId && r.rating !== null && r.rating !== undefined && r.rating > 0);
+    return me ? me.review_id : null;
+  })();
+
   const addReview = async (rating, comment) => {
-    const newReview = await createReview(placeId, { rating, comment }, user.token);
+    const payloadRating = rating ? rating : null;
+    const newReview = await createReview(placeId, { rating: payloadRating, comment }, user.token);
     setReviews((prev) => [{ ...newReview, user_vote: null }, ...prev]);
   };
 
   const editReview = async (reviewId, rating, comment) => {
-    await updateReview(placeId, reviewId, { rating, comment }, user.token);
+    const payloadRating = rating ? rating : null;
+    await updateReview(placeId, reviewId, { rating: payloadRating, comment }, user.token);
     setReviews((prev) => prev.map((r) =>
       r.review_id === reviewId ? { ...r, rating, comment } : r
     ));
@@ -65,5 +76,5 @@ export function useReviews(placeId, user) {
     }
   };
 
-  return { reviews, loading, error, addReview, editReview, removeReview, voteReview };
+  return { reviews, loading, error, starredReviewId, addReview, editReview, removeReview, voteReview };
 }

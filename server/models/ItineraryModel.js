@@ -1,28 +1,42 @@
 import pool from '../config/db.js';
 
 /**
- * שליפת המסלול האישי של המשתמש — מסודר לפי order_index
+ * שליפת המועדפים של המשתמש — כולל פרטי תצוגה (תמונה, דירוג, תיקייה)
  */
 export const getItineraryByUserId = async (userId) => {
     const [rows] = await pool.query(
         `SELECT
             f.favorite_id,
             f.order_index,
+            f.folder_id,
+            f.created_at,
             p.place_id,
             p.name,
             p.description,
-            p.category,
+            p.categories,
             p.latitude,
             p.longitude,
             p.opening_hours,
-            p.is_approved
+            p.is_approved,
+            u.username AS created_by_username,
+            (SELECT m.media_url FROM media m
+              WHERE m.place_id = p.place_id AND m.media_type = 'image'
+              ORDER BY m.uploaded_at DESC LIMIT 1) AS image_url,
+            (SELECT ROUND(AVG(r.rating), 1) FROM reviews r WHERE r.place_id = p.place_id) AS avg_rating,
+            (SELECT COUNT(*) FROM reviews r WHERE r.place_id = p.place_id) AS review_count
          FROM favorites f
          JOIN places p ON f.place_id = p.place_id
+         LEFT JOIN users u ON p.created_by = u.user_id
          WHERE f.user_id = ?
-         ORDER BY f.order_index ASC`,
+         ORDER BY f.favorite_id DESC`,
         [userId]
     );
-    return rows;
+
+    // MySQL מחזיר JSON columns כ-string — נמיר למערך
+    return rows.map((row) => ({
+        ...row,
+        categories: typeof row.categories === 'string' ? JSON.parse(row.categories) : row.categories,
+    }));
 };
 
 /**
@@ -84,6 +98,19 @@ export const removeFromItinerary = async (favoriteId) => {
         `DELETE FROM favorites
          WHERE favorite_id = ?`,
         [favoriteId]
+    );
+    return result.affectedRows > 0;
+};
+
+/**
+ * עדכון התיקייה של מועדף קיים (folderId = null מוציא אותו מכל תיקייה)
+ */
+export const updateFavoriteFolder = async (favoriteId, folderId) => {
+    const [result] = await pool.query(
+        `UPDATE favorites
+         SET folder_id = ?
+         WHERE favorite_id = ?`,
+        [folderId, favoriteId]
     );
     return result.affectedRows > 0;
 };

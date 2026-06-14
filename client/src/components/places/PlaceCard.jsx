@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import PlaceOwnerActions from './PlaceOwnerActions';
 import StarRating from './StarRating';
+import FavoriteButton from '../favorites/FavoriteButton';
 import { formatDate } from '../../utils/dateUtils';
 import '../../styles/places.css';
 
@@ -43,6 +44,7 @@ export default function PlaceCard({ place }) {
       role="button"
       aria-label={`מקום: ${name}`}
     >
+      <FavoriteButton place={place} size="sm" className="favorite-btn--overlay" />
       {image_url && (
         <div className="place-card__image-wrap">
           <img src={image_url} alt={name} className="place-card__image" loading="lazy" />

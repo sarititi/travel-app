@@ -76,6 +76,16 @@ export const INVALID_RATING = {
     status: 400
 };
 
+export const RATING_MUST_BE_NUMBER = {
+    message: 'Rating must be a number',
+    status: 400
+};
+
+export const RATING_REQUIRED = {
+    message: 'Rating is required',
+    status: 400
+};
+
 export const UNAUTHORIZED_REVIEW_MODIFICATION = {
     message: 'Only the review creator or an admin can modify this review',
     status: 403
@@ -86,9 +96,9 @@ export const CANNOT_VOTE_OWN_REVIEW = {
     status: 403
 };
 
-export const RATING_REQUIRED = {
-    message: 'Rating is required',
-    status: 400
+export const REVIEW_ALREADY_STARRED = {
+    message: 'User already posted a starred review for this place',
+    status: 409
 };
 
 // ===== Itinerary Service Errors =====
@@ -105,6 +115,23 @@ export const ITINERARY_PLACE_ALREADY_EXISTS = {
 
 export const UNAUTHORIZED_ITINERARY_MODIFICATION = {
     message: 'Only the itinerary owner can modify it',
+    status: 403
+};
+
+// ===== Favorite Folders Errors =====
+
+export const FOLDER_NOT_FOUND = {
+    message: 'Folder not found',
+    status: 404
+};
+
+export const FOLDER_NAME_REQUIRED = {
+    message: 'Folder name is required',
+    status: 400
+};
+
+export const UNAUTHORIZED_FOLDER_MODIFICATION = {
+    message: 'Only the folder owner can modify it',
     status: 403
 };
 
@@ -137,33 +164,6 @@ export const INTERNAL_SERVER_ERROR = {
     status: 500
 };
 
-// ===== Additional Project Errors =====
-
-export const NO_FILE_UPLOADED = {
-    message: 'No file uploaded',
-    status: 400
-};
-
-export const NAME_CATEGORY_REQUIRED = {
-    message: 'name is required and categories must be an array of strings',
-    status: 400
-};
-
-export const PLACE_UPDATE_FAILED = {
-    message: 'Failed to update place',
-    status: 500
-};
-
-export const FILE_SIZE_EXCEEDED = {
-    message: 'File size exceeds the 50MB limit',
-    status: 400
-};
-
-export const RATING_MUST_BE_NUMBER = {
-    message: 'Rating must be a number',
-    status: 400
-};
-
 export const ROUTE_NOT_FOUND = {
     message: 'Route not found',
     status: 404
@@ -184,8 +184,35 @@ export const DELETE_FAILED = {
     status: 500
 };
 
+// ===== Validation / Request Errors =====
+
+export const NO_FILE_UPLOADED = {
+    message: 'No file uploaded',
+    status: 400
+};
+
+export const NAME_CATEGORY_REQUIRED = {
+    message: 'name is required and categories must be an array of strings',
+    status: 400
+};
+
+export const FILE_SIZE_EXCEEDED = {
+    message: 'File size exceeds the 50MB limit',
+    status: 400
+};
+
 export const PLACE_ID_REQUIRED = {
     message: 'place_id is required',
+    status: 400
+};
+
+export const PLACE_ID_REQUIRED_PARAM = {
+    message: 'Place ID is required',
+    status: 400
+};
+
+export const REVIEW_ID_REQUIRED = {
+    message: 'Review ID is required',
     status: 400
 };
 
@@ -199,12 +226,7 @@ export const ENTRY_FIELDS_REQUIRED = {
     status: 400
 };
 
-export const PLACE_ID_REQUIRED_PARAM = {
-    message: 'Place ID is required',
-    status: 400
-};
-
-export const REVIEW_ID_REQUIRED = {
-    message: 'Review ID is required',
-    status: 400
+export const PLACE_UPDATE_FAILED = {
+    message: 'Failed to update place',
+    status: 500
 };

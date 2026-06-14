@@ -5,7 +5,6 @@ import { getPlaceById } from '../../API/placeAPI'; // ייבוא הפונקצי�
 import PlaceInfo from '../../components/places/PlaceInfo';
 import PlaceMediaGrid from '../../components/media/PlaceMediaGrid';
 import ReviewModal from '../../components/reviews/ReviewModal';
-import AddToItineraryButton from '../../components/itinerary/AddToItineraryButton';
 import '../../styles/places.css';
 
 export default function PlaceDetail() {
@@ -41,7 +40,7 @@ export default function PlaceDetail() {
   return (
     <div className="place-detail-page">
       <button className="btn-back" onClick={() => navigate(-1)}>
-         חזרה לעמוד הקודם
+        חזרה לעמוד הקודם
       </button>
 
       <div className="place-detail-layout">
@@ -50,7 +49,6 @@ export default function PlaceDetail() {
 
         {/* חלק 2: כפתורי פעולה אינטראקטיביים */}
         <div className="place-actions-bar">
-          <AddToItineraryButton placeId={id} />
           <button className="btn-reviews" onClick={() => setIsReviewOpen(true)}>
             💬 תגובות וחוות דעת
             {place.review_count > 0 && (
@@ -63,11 +61,12 @@ export default function PlaceDetail() {
         <PlaceMediaGrid placeId={id} initialMedia={place.media || []} />
       </div>
 
-      {/* מודל הביקורות */}
+       {/* מודל הביקורות */}
       {isReviewOpen && (
         <ReviewModal
           placeId={id}
           placeName={place.name}
+          placeOwnerId={place.created_by}
           onClose={() => setIsReviewOpen(false)}
         />
       )}

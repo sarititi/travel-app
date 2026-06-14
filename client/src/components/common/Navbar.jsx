@@ -43,7 +43,7 @@ export default function Navbar() {
         )}
         {user && (
 
-<Link to="/itinerary" className="nav-link">המועדפים שלי</Link>
+<Link to="/favorites" className="nav-link">המועדפים שלי</Link>
         )}
       </div>
 
@@ -71,7 +71,7 @@ export default function Navbar() {
                 <div className="dropdown-menu">
                   <Link to="/profile" className="dropdown-item">צפיה בפרופיל</Link>
                   <Link to="/profile/edit" className="dropdown-item">עדכון פרופיל</Link>
-                  <Link to="/itinerary" className="dropdown-item">מסלולים מותאמים אישית</Link>
+                  <Link to="/favorites" className="dropdown-item">מסלולים מותאמים אישית</Link>
                   {(user.role === 'admin' || user.username === 'admin1') && (
                     <Link to="/admin/users" className="dropdown-item">מנהל משתמשים</Link>
                   )}

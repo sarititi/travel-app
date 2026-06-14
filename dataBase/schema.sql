@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS review_helpful;
 DROP TABLE IF EXISTS media;
 DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS favorites;
+DROP TABLE IF EXISTS favorite_folders;
 DROP TABLE IF EXISTS places;
 DROP TABLE IF EXISTS credentials;
 DROP TABLE IF EXISTS users;
@@ -44,11 +45,21 @@ CREATE TABLE places (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
  
+-- תיקיות מועדפים (כל משתמש מנהל תיקיות משלו)
+CREATE TABLE favorite_folders (
+    folder_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE favorites (
     favorite_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     place_id INT NOT NULL REFERENCES places(place_id) ON DELETE CASCADE,
+    folder_id INT NULL REFERENCES favorite_folders(folder_id) ON DELETE SET NULL,
     order_index INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id, place_id)
 );
  

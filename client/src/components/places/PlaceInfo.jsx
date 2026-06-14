@@ -1,4 +1,5 @@
 import StarRating from './StarRating';
+import FavoriteButton from '../favorites/FavoriteButton';
 import '../../styles/places.css';
 
 export default function PlaceInfo({ place }) {
@@ -21,7 +22,10 @@ export default function PlaceInfo({ place }) {
         </div>
       )}
 
-      <h1 className="place-detail-title">{name}</h1>
+      <div className="place-detail-header">
+        <h1 className="place-detail-title">{name}</h1>
+        <FavoriteButton place={place} size="lg" />
+      </div>
 
       <StarRating rating={avg_rating} count={review_count} size="lg" />
 

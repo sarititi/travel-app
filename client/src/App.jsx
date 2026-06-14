@@ -1,6 +1,7 @@
 import './App.css';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { UserProvider } from './context/userContext';
+import { FavoritesProvider } from './context/FavoritesContext';
 
 import PublicRoute from './components/common/PublicRoute';
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -19,12 +20,13 @@ import Profile from './pages/profile/Profile';
 import ProfileEdit from './pages/profile/ProfileEdit';
 import UsersAdmin from './pages/admin/UsersAdmin';
 
-import Itinerary from './pages/Itinerary';
+import Favorites from './pages/Favorites';
 import ErrorPage from './pages/ErrorPage';
 
 function App() {
   return (
     <UserProvider>
+    <FavoritesProvider>
       <Routes>
         {/* Auth routes (no navbar) */}
         <Route element={<PublicRoute />}>
@@ -48,7 +50,9 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/profile"      element={<Profile />} />
             <Route path="/profile/edit" element={<ProfileEdit />} />
-            <Route path="/itinerary"    element={<Itinerary />} />
+            <Route path="/favorites"    element={<Favorites />} />
+            {/* תאימות לאחור לקישור הישן */}
+            <Route path="/itinerary"    element={<Navigate to="/favorites" replace />} />
           </Route>
           <Route element={<ProtectedRoute />}>
             <Route path="/admin/users" element={<UsersAdmin />} />
@@ -61,6 +65,7 @@ function App() {
         <Route path="/500" element={<ErrorPage code={500} />} />
         <Route path="*"    element={<ErrorPage code={404} />} />
       </Routes>
+    </FavoritesProvider>
     </UserProvider>
   );
 }

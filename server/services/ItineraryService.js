@@ -4,14 +4,18 @@ import {
     getItineraryEntry,
     getItineraryEntryById,
     removeFromItinerary,
-    reorderItinerary
+    reorderItinerary,
+    updateFavoriteFolder
 } from '../models/ItineraryModel.js';
 import { getPlaceById } from '../models/PlaceModel.js';
+import { getFolderById } from '../models/FavoriteFolderModel.js';
 import {
     PLACE_NOT_FOUND,
     ITINERARY_ENTRY_NOT_FOUND,
     ITINERARY_PLACE_ALREADY_EXISTS,
-    UNAUTHORIZED_ITINERARY_MODIFICATION
+    UNAUTHORIZED_ITINERARY_MODIFICATION,
+    FOLDER_NOT_FOUND,
+    UNAUTHORIZED_FOLDER_MODIFICATION
 } from '../const/errorConst.js';
 
 /**
@@ -63,6 +67,43 @@ export const removePlace = async (userId, favoriteId) => {
     }
 
     return await removeFromItinerary(favoriteId);
+};
+
+/**
+ * שיבוץ/הוצאה של מועדף מתיקייה (folderId = null מוציא אותו מכל תיקייה)
+ * - מוודא שהרשומה שייכת למשתמש
+ * - מוודא שהתיקייה (אם נשלחה) שייכת למשתמש
+ */
+export const setFavoriteFolder = async (userId, favoriteId, folderId) => {
+    const entry = await getItineraryEntryById(favoriteId);
+    if (!entry) {
+        const error = new Error(ITINERARY_ENTRY_NOT_FOUND.message);
+        error.status = ITINERARY_ENTRY_NOT_FOUND.status;
+        throw error;
+    }
+
+    if (entry.user_id !== userId) {
+        const error = new Error(UNAUTHORIZED_ITINERARY_MODIFICATION.message);
+        error.status = UNAUTHORIZED_ITINERARY_MODIFICATION.status;
+        throw error;
+    }
+
+    if (folderId !== null) {
+        const folder = await getFolderById(folderId);
+        if (!folder) {
+            const error = new Error(FOLDER_NOT_FOUND.message);
+            error.status = FOLDER_NOT_FOUND.status;
+            throw error;
+        }
+
+        if (folder.user_id !== userId) {
+            const error = new Error(UNAUTHORIZED_FOLDER_MODIFICATION.message);
+            error.status = UNAUTHORIZED_FOLDER_MODIFICATION.status;
+            throw error;
+        }
+    }
+
+    return await updateFavoriteFolder(favoriteId, folderId);
 };
 
 /**
