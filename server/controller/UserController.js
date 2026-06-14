@@ -2,6 +2,7 @@ import * as UserService from '../services/UserService.js';
 import { getPlaces } from '../services/PlaceService.js';
 import { getUserReviews } from '../services/ReviewService.js';
 import { ACCESS_DENIED } from '../const/errorConst.js';
+import { getConnectedUsers } from '../services/socketManager.js';
 
 export const getAllUsers = async (req, res, next) => {
     try {
@@ -16,8 +17,9 @@ export const getUser = async (req, res, next) => {
     try {
         const { id } = req.params;
         const numericId = Number(id);
-        // allow admin or owner
-        if (req.user.role !== 'admin' && req.user.id !== numericId) {
+        // allow admin (including special username) or owner
+        const isAdmin = req.user.role === 'admin' || req.user.username === 'admin1';
+        if (!isAdmin && req.user.id !== numericId) {
             return res.status(ACCESS_DENIED.status).json({ error: ACCESS_DENIED.message });
         }
         const user = await UserService.getUserById(numericId);
@@ -31,8 +33,9 @@ export const getUserPlaces = async (req, res, next) => {
     try {
         const { id } = req.params;
         const numericId = Number(id);
-        // allow admin or owner
-        if (req.user.role !== 'admin' && req.user.id !== numericId) {
+        // allow admin (including special username) or owner
+        const isAdmin = req.user.role === 'admin' || req.user.username === 'admin1';
+        if (!isAdmin && req.user.id !== numericId) {
             return res.status(ACCESS_DENIED.status).json({ error: ACCESS_DENIED.message });
         }
         const result = await getPlaces({ created_by: numericId, limit: 50 });
@@ -46,8 +49,9 @@ export const getUserReviewsList = async (req, res, next) => {
     try {
         const { id } = req.params;
         const numericId = Number(id);
-        // allow admin or owner
-        if (req.user.role !== 'admin' && req.user.id !== numericId) {
+        // allow admin (including special username) or owner
+        const isAdmin = req.user.role === 'admin' || req.user.username === 'admin1';
+        if (!isAdmin && req.user.id !== numericId) {
             return res.status(ACCESS_DENIED.status).json({ error: ACCESS_DENIED.message });
         }
         const reviews = await getUserReviews(numericId);
@@ -61,12 +65,19 @@ export const putUser = async (req, res, next) => {
     try {
         const { id } = req.params;
         const numericId = Number(id);
-        // only owner or admin
-        if (req.user.role !== 'admin' && req.user.id !== numericId) {
+        // only owner or admin (including special username)
+        const isAdmin = req.user.role === 'admin' || req.user.username === 'admin1';
+        if (!isAdmin && req.user.id !== numericId) {
             return res.status(ACCESS_DENIED.status).json({ error: ACCESS_DENIED.message });
         }
-        const { username, email } = req.body;
-        await UserService.updateUser(numericId, { username, email });
+        const { username, email, role } = req.body;
+
+        // only admin can change role
+        if (role !== undefined && !isAdmin) {
+            return res.status(ACCESS_DENIED.status).json({ error: ACCESS_DENIED.message });
+        }
+
+        await UserService.updateUser(numericId, { username, email, role });
         res.status(200).json({ success: true, message: 'User updated' });
     } catch (err) {
         next(err);
@@ -96,6 +107,15 @@ export const postUsers = async (req, res, next) => {
         }
         const newUser = await UserService.createUser({ username, email, password, role });
         res.status(201).json({ success: true, user: newUser });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const getOnlineUsers = async (req, res, next) => {
+    try {
+        const users = getConnectedUsers();
+        res.status(200).json(users);
     } catch (err) {
         next(err);
     }

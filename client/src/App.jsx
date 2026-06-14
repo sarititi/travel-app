@@ -17,6 +17,7 @@ import GalleryPost from './pages/gallery/GalleryPost';
 
 import Profile from './pages/profile/Profile';
 import ProfileEdit from './pages/profile/ProfileEdit';
+import UsersAdmin from './pages/admin/UsersAdmin';
 
 import Itinerary from './pages/Itinerary';
 import ErrorPage from './pages/ErrorPage';
@@ -48,6 +49,9 @@ function App() {
             <Route path="/profile"      element={<Profile />} />
             <Route path="/profile/edit" element={<ProfileEdit />} />
             <Route path="/itinerary"    element={<Itinerary />} />
+          </Route>
+          <Route element={<ProtectedRoute />}>
+            <Route path="/admin/users" element={<UsersAdmin />} />
           </Route>
         </Route>
 

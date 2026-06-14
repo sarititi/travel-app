@@ -107,3 +107,59 @@ export const registerUser = async (userData) => {
   const token = btoa(`${email}:${id}`);
   return { user: { id, username: userName, email, role: 'regular' }, token };
 };
+
+/** Admin: שליפת כל המשתמשים (דורש טוקן אדמין) */
+export const getAllUsers = async (token) => {
+  const res = await fetch(`${BASE_URL}/user/`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+};
+
+/** Admin: מחיקת משתמש לפי ID */
+export const deleteUser = async (userId, token) => {
+  const res = await fetch(`${BASE_URL}/user/${userId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+};
+
+/** Admin: שליפת משתמשים מחוברים דרך Socket manager */
+export const getOnlineUsers = async (token) => {
+  const res = await fetch(`${BASE_URL}/user/online`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+};
+
+/** Admin: עדכון משתמש (username/email/role) */
+export const updateUser = async (userId, data, token) => {
+  const res = await fetch(`${BASE_URL}/user/${userId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+};
+
+/** Admin: יצירת משתמש חדש (username, email, password, role) */
+export const createUser = async (data, token) => {
+  const res = await fetch(`${BASE_URL}/user/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+};

@@ -24,7 +24,9 @@ export default function PlaceOwnerActions({ place, onDeleted, onUpdated }) {
     String(currentUserId) === String(placeOwnerId)
   );
 
-  if (!isOwner) return null;
+  // allow admin users to perform owner actions as well
+  const isAdmin = user && (user.role === 'admin' || user.username === 'admin1');
+  if (!isOwner && !isAdmin) return null;
 
   /**
    * פותח את עמוד עריכת המקום בטאב חדש.

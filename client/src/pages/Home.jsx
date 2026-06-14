@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <div className="home-page">
       <section className="hero">
-        <h1>ברוכים הבאים ל-Travelly</h1>
+        <h1> visiCity - ברוכים הבאים ל</h1>
         <p className="lead">פלפורמה לגלות מקומות, לשתף תמונות ולבנות מסלולים מותאמים אישית.</p>
       </section>
 

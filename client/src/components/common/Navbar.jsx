@@ -38,6 +38,9 @@ export default function Navbar() {
         <Link to="/home" className="nav-link">דף הבית</Link>
         <Link to="/places" className="nav-link">טיולים</Link>
         <Link to="/gallery" className="nav-link">גלריה</Link>
+        {(user && (user.role === 'admin' || user.username === 'admin1')) && (
+          <Link to="/admin/users" className="nav-link">ניהול משתמשים</Link>
+        )}
       </div>
 
       <div className="nav-left">
@@ -65,6 +68,9 @@ export default function Navbar() {
                   <Link to="/profile" className="dropdown-item">צפיה בפרופיל</Link>
                   <Link to="/profile/edit" className="dropdown-item">עדכון פרופיל</Link>
                   <Link to="/itinerary" className="dropdown-item">מסלולים מותאמים אישית</Link>
+                  {(user.role === 'admin' || user.username === 'admin1') && (
+                    <Link to="/admin/users" className="dropdown-item">מנהל משתמשים</Link>
+                  )}
                   <button className="dropdown-item danger" onClick={handleLogout}>התנתקות</button>
                 </div>
               )}

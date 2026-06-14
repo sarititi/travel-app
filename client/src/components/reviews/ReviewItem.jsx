@@ -82,7 +82,7 @@ export default function ReviewItem({ review, currentUser, onDelete, onEdit, onVo
           </button>
         </div>
 
-        {isOwner && (
+        {(isOwner || (currentUser && (currentUser.role === 'admin' || currentUser.username === 'admin1'))) && (
           <div className="review-owner-actions">
             <button
               className="review-edit-btn"

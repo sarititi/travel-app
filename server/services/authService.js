@@ -13,7 +13,7 @@ const SALT_ROUNDS = 10;
 
 const generateToken = (user) => {
     return jwt.sign(
-        { id: user.id, role: user.role },
+        { id: user.id, role: user.role, username: user.username },
         SECRET,
         { expiresIn: '1h' }
     );

@@ -43,11 +43,29 @@ export const getAllUsers = async () => {
 	return rows;
 };
 
-export const updateUser = async (id, { username, email }) => {
-	const [result] = await pool.query(
-		`UPDATE users SET username = ?, email = ? WHERE user_id = ?`,
-		[username, email, id]
-	);
+export const updateUser = async (id, { username, email, role }) => {
+	const sets = [];
+	const params = [];
+
+	if (username !== undefined) {
+		sets.push('username = ?');
+		params.push(username);
+	}
+	if (email !== undefined) {
+		sets.push('email = ?');
+		params.push(email);
+	}
+	if (role !== undefined) {
+		sets.push('user_type = ?');
+		params.push(role);
+	}
+
+	if (sets.length === 0) return false;
+
+	const sql = `UPDATE users SET ${sets.join(', ')} WHERE user_id = ?`;
+	params.push(id);
+
+	const [result] = await pool.query(sql, params);
 	return result.affectedRows > 0;
 };
 

@@ -1,9 +1,112 @@
-.home-page{ padding:28px; max-width:1100px; margin:0 auto; }
-.hero{ background:linear-gradient(90deg,#e8f7ff,#ffffff); padding:28px; border-radius:12px; box-shadow:0 6px 20px rgba(20,30,60,0.04); text-align:right; }
-.hero h1{ margin:0 0 8px; font-size:28px; color:#08304a; }
-.lead{ color:#124; margin-bottom:0; }
-.about{ margin-top:20px; text-align:right; }
-.about ul{ margin:8px 0 0 0; padding-right:18px; }
-.quick-actions{ margin-top:20px; }
-.actions-row{ display:flex; gap:12px; justify-content:flex-end; }
-.action-card{ display:inline-block; padding:12px 16px; background:#fff; border-radius:10px; border:1px solid #e6eef8; text-decoration:none; color:#0b2b4a; }
+.home-page{
+  padding:28px;
+  max-width:1100px;
+  margin:0 auto;
+  font-family:'Trebuchet MS','Segoe UI',sans-serif;
+  background:#fffdf5;
+}
+
+.hero{
+  background:linear-gradient(120deg,#ffe29a 0%,#ffd6a5 35%,#a0e7e5 75%,#b9fbc0 100%);
+  padding:40px 28px;
+  border-radius:24px;
+  box-shadow:0 10px 30px rgba(255,179,71,0.25);
+  text-align:right;
+  position:relative;
+  overflow:hidden;
+}
+
+.hero::before{
+  content:"🌴";
+  position:absolute;
+  font-size:90px;
+  opacity:0.18;
+  left:-15px;
+  top:-20px;
+  transform:rotate(-15deg);
+}
+
+.hero::after{
+  content:"☀️";
+  position:absolute;
+  font-size:70px;
+  opacity:0.25;
+  right:20px;
+  bottom:-15px;
+}
+
+.hero h1{
+  margin:0 0 10px;
+  font-size:34px;
+  color:#d2691e;
+  text-shadow:1px 1px 0 #fff;
+  letter-spacing:1px;
+}
+
+.lead{
+  color:#3a3a3a;
+  margin-bottom:0;
+  font-size:17px;
+  line-height:1.6;
+}
+
+.about{
+  margin-top:24px;
+  text-align:right;
+  background:#ffffffcc;
+  border-radius:20px;
+  padding:20px 24px;
+  border:2px dashed #ffb86b;
+  box-shadow:0 4px 14px rgba(0,0,0,0.04);
+}
+
+.about h2{
+  color:#ff6f3c;
+  margin-top:0;
+}
+
+.about ul{
+  margin:12px 0 0 0;
+  padding-right:22px;
+  list-style:"🏖️ ";
+}
+
+.about ul li{
+  margin-bottom:8px;
+  color:#444;
+}
+
+.quick-actions{
+  margin-top:28px;
+  text-align:right;
+}
+
+.quick-actions h3{
+  color:#2bb3a3;
+}
+
+.actions-row{
+  display:flex;
+  gap:14px;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+}
+
+.action-card{
+  display:inline-block;
+  padding:14px 22px;
+  background:linear-gradient(135deg,#ffd6a5,#fcb69f);
+  border-radius:50px;
+  border:none;
+  text-decoration:none;
+  color:#7a3b00;
+  font-weight:bold;
+  box-shadow:0 4px 10px rgba(252,182,159,0.5);
+  transition:transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.action-card:hover{
+  transform:translateY(-4px) scale(1.04);
+  box-shadow:0 8px 16px rgba(252,182,159,0.7);
+  background:linear-gradient(135deg,#fcb69f,#ffd6a5);
+}

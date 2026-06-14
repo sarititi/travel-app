@@ -73,6 +73,18 @@ export const initSocket = (httpServer) => {
 };
 
 /**
+ * החזרת רשימת המשתמשים המחוברים כרגע (רק אלה עם טוקן תקין)
+ */
+export const getConnectedUsers = () => {
+    if (!io) return [];
+    const users = [];
+    io.sockets.sockets.forEach((socket) => {
+        if (socket.user) users.push({ id: socket.user.id, role: socket.user.role, username: socket.user.username });
+    });
+    return users;
+};
+
+/**
  * שליחת אירוע לכל הלקוחות המחוברים (כולל guests)
  * לאירועים ציבוריים בלבד — אירועים, מקומות פופולריים, מדיה חדשה
  */

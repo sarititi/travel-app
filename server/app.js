@@ -8,17 +8,21 @@ import authRoutes      from './routes/authRoutes.js';
 import placeRoutes     from './routes/placeRoute.js';
 import userRoutes      from './routes/userRoutes.js';
 import itineraryRoutes from './routes/itineraryRoute.js';
+import { initSocket } from './services/socketManager.js';
 import { ROUTE_NOT_FOUND, INTERNAL_SERVER_ERROR } from './const/errorConst.js';
 
 
 //אני מייבאת מהראוט את המודל לשים לב אם זה צריך לעבור דרך הסרוויס
 //ליצור אודיו ולבדוק את המדיה
+//בנבבר למחוק את האופציה של אדמין 1 - להגדיר ישירות בDB את האדמין עם רול אדמין
+//סינונים
+//מפות חיות
 
 const app = express();
 const httpServer = createServer(app);
 
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: process.env.CLIENT_URL || 'http://localhost:5174',
     credentials: true 
 }));
 
@@ -49,7 +53,8 @@ app.use((err, req, res, next) => {
     });
 });
 
-// initSocket(httpServer);
+// enable socket.io (used for online users / live updates)
+initSocket(httpServer);
 
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
